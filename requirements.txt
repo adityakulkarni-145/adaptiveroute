@@ -1,5 +1,4 @@
---extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.5.1+cpu
+torch==2.8.0
 transformers==4.47.1
 fastapi==0.115.6
 pydantic==2.10.4

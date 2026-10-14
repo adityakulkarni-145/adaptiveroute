@@ -11,7 +11,7 @@ RUN useradd -m -u 1000 user
 WORKDIR /home/user/app
 
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
 
 USER user
 # Bake the DistilBERT weights into the image so the Space starts without a download.

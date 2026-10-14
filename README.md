@@ -120,7 +120,7 @@ Endpoints: `GET /health`, `POST /predict` (`router`: `fixed` | `learned`; `thres
 
 ```bash
 python3.11 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
 uvicorn app.main:app --port 7860           # http://localhost:7860
 pytest -q
 
