@@ -1,0 +1,15 @@
+{
+  "n_fit": 60614,
+  "n_calibration": 6735,
+  "n_eval": 436,
+  "calibration": {
+    "accuracy": 0.9068,
+    "ece_before": 0.1272,
+    "ece_after": 0.012
+  },
+  "sst2_val_second_half": {
+    "accuracy": 0.7959,
+    "ece_before": 0.0572,
+    "ece_after": 0.088
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "users": 20,
+  "duration": "60s",
+  "host": "http://127.0.0.1:8000",
+  "stats": {
+    "/predict fixed": {
+      "requests": 1822,
+      "failures": 0,
+      "p50_ms": 10.0,
+      "p95_ms": 71.0,
+      "requests_per_sec": 30.84
+    },
+    "/predict learned": {
+      "requests": 1802,
+      "failures": 0,
+      "p50_ms": 15.0,
+      "p95_ms": 120.0,
+      "requests_per_sec": 30.5
+    },
+    "Aggregated": {
+      "requests": 3624,
+      "failures": 0,
+      "p50_ms": 12.0,
+      "p95_ms": 100.0,
+      "requests_per_sec": 61.34
+    }
+  }
+}

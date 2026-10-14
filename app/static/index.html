@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdaptiveRoute</title>
+  <meta name="description" content="Confidence-routed sentiment inference: a cheap model answers first, uncertain requests escalate to a larger model.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <h1>AdaptiveRoute</h1>
+    <p class="lede">A cheap model answers first. When it is unsure, the request escalates to a larger model.</p>
+  </header>
+
+  <section class="card" aria-labelledby="try-h">
+    <h2 id="try-h" class="sr-only">Classify text</h2>
+    <form id="form" novalidate>
+      <div class="field">
+        <div class="label-row">
+          <label for="text">Text to classify</label>
+          <span id="count" class="muted" aria-live="polite">0 / 1000</span>
+        </div>
+        <textarea id="text" name="text" rows="4" maxlength="1000" placeholder="Type a sentence or short review..." aria-describedby="text-err"></textarea>
+        <p id="text-err" class="field-error" role="alert" hidden></p>
+      </div>
+
+      <div class="chips" role="group" aria-label="Example texts">
+        <button type="button" class="chip" data-example="An absolute delight from start to finish, with a warm, funny script and terrific performances.">Positive example</button>
+        <button type="button" class="chip" data-example="A tedious, badly acted mess that wastes two hours of your life.">Negative example</button>
+        <button type="button" class="chip" data-example="It's not that the film is bad, but I wouldn't call it good either.">Ambiguous example</button>
+      </div>
+
+      <div class="controls">
+        <fieldset class="seg">
+          <legend>Router</legend>
+          <div class="seg-track">
+            <input type="radio" id="r-fixed" name="router" value="fixed" checked>
+            <label for="r-fixed">Fixed</label>
+            <input type="radio" id="r-learned" name="router" value="learned">
+            <label for="r-learned">Learned</label>
+          </div>
+        </fieldset>
+        <div class="field slider">
+          <div class="label-row">
+            <label for="threshold" id="slider-label">Confidence threshold</label>
+            <output id="threshold-val" for="threshold">0.85</output>
+          </div>
+          <input type="range" id="threshold" min="0.5" max="1" step="0.01" value="0.85" aria-describedby="slider-help">
+          <p id="slider-help" class="muted small">Escalate when the small model's calibrated confidence is below this.</p>
+        </div>
+      </div>
+
+      <button type="submit" id="submit" class="primary">Classify</button>
+    </form>
+  </section>
+
+  <section id="result" class="card result" aria-live="polite" aria-busy="false" hidden>
+    <div id="result-loading" class="loading" hidden><span class="spinner" aria-hidden="true"></span>Classifying...</div>
+    <p id="result-error" class="error" role="alert" hidden></p>
+    <div id="result-body" hidden>
+      <div class="verdict">
+        <span id="r-label" class="big-label"></span>
+        <span id="r-conf" class="muted"></span>
+      </div>
+      <div class="bar" role="meter" aria-label="Confidence" aria-valuemin="0" aria-valuemax="100" id="r-bar">
+        <span id="r-bar-fill"></span>
+      </div>
+      <ol class="flow" aria-label="Routing path">
+        <li id="step-small" class="step"><span class="step-name">Small model</span><span class="step-sub">TF-IDF + logistic regression</span></li>
+        <li class="arrow" aria-hidden="true">&rarr;</li>
+        <li id="step-large" class="step"><span class="step-name">Large model</span><span class="step-sub">DistilBERT</span></li>
+      </ol>
+      <dl class="facts">
+        <div><dt>Small-model verdict</dt><dd id="r-small"></dd></div>
+        <div><dt>Escalated</dt><dd id="r-esc"></dd></div>
+        <div><dt>Router</dt><dd id="r-router"></dd></div>
+        <div><dt>Latency</dt><dd id="r-lat"></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="perf" aria-labelledby="perf-h">
+    <div class="section-head">
+      <h2 id="perf-h">How it performs</h2>
+      <div class="seg-track small-seg" role="group" aria-label="Dataset">
+        <button type="button" class="ds" data-ds="sst2" aria-pressed="true">SST-2</button>
+        <button type="button" class="ds" data-ds="imdb" aria-pressed="false">IMDB (out-of-domain)</button>
+      </div>
+    </div>
+    <p id="perf-sub" class="muted small"></p>
+    <div class="card chart-card">
+      <div class="legend" aria-hidden="true">
+        <span><i class="sw sw-fixed"></i>Fixed router</span>
+        <span><i class="sw sw-learned"></i>Learned router</span>
+        <span><i class="sw sw-base"></i>Small / large only</span>
+      </div>
+      <div id="chart" class="chart" role="img" aria-label="Accuracy versus mean latency chart"></div>
+      <div id="tip" class="tip" hidden></div>
+    </div>
+    <div class="table-wrap">
+      <table id="perf-table">
+        <caption class="sr-only">Accuracy, escalation and latency by setup</caption>
+        <thead><tr><th scope="col">Setup</th><th scope="col">Accuracy</th><th scope="col">Escalated</th><th scope="col">Mean ms</th><th scope="col">p95 ms</th><th scope="col">Rel. cost</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p id="perf-error" class="muted small" hidden></p>
+  </section>
+
+  <section class="stats" aria-labelledby="stats-h">
+    <h2 id="stats-h" class="sr-only">Live service stats</h2>
+    <div class="stat"><span class="stat-v" id="s-req">-</span><span class="stat-k">Requests</span></div>
+    <div class="stat"><span class="stat-v" id="s-esc">-</span><span class="stat-k">Escalation rate</span></div>
+    <div class="stat"><span class="stat-v" id="s-p50">-</span><span class="stat-k">p50 latency</span></div>
+    <div class="stat"><span class="stat-v" id="s-p95">-</span><span class="stat-k">p95 latency</span></div>
+  </section>
+
+  <footer class="foot">
+    <a href="/docs">API docs</a>
+    <span aria-hidden="true">&middot;</span>
+    <a href="https://github.com/YOUR_USERNAME/adaptiveroute">GitHub repo</a>
+  </footer>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>
