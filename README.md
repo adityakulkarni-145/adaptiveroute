@@ -3,8 +3,10 @@ title: AdaptiveRoute
 emoji: 🔀
 colorFrom: blue
 colorTo: gray
-sdk: docker
-app_port: 7860
+sdk: gradio
+sdk_version: 5.9.1
+app_file: app.py
+python_version: "3.11"
 pinned: false
 ---
 
@@ -12,7 +14,7 @@ pinned: false
 
 **Live demo:** `https://huggingface.co/spaces/<username>/adaptiveroute` (placeholder)
 
-AdaptiveRoute is a confidence-routed sentiment service. Every request is first answered by a cheap model (TF-IDF + logistic regression, sigmoid-calibrated). If a router decides the cheap answer is not trustworthy, the request escalates to a larger model (DistilBERT fine-tuned on SST-2). Two routers are compared: a fixed threshold on the small model's calibrated confidence, and a learned router that predicts "large is right and small is wrong" from small-model-only features. Everything runs on CPU at zero cost: a FastAPI service with a static web UI, offline evaluation, a load test, CI and a Dockerfile for a free Hugging Face Space.
+AdaptiveRoute is a confidence-routed sentiment service. Every request is first answered by a cheap model (TF-IDF + logistic regression, sigmoid-calibrated). If a router decides the cheap answer is not trustworthy, the request escalates to a larger model (DistilBERT fine-tuned on SST-2). Two routers are compared: a fixed threshold on the small model's calibrated confidence, and a learned router that predicts "large is right and small is wrong" from small-model-only features. Everything runs on CPU at zero cost: a FastAPI service with a static web UI, offline evaluation, a load test, CI and a free Hugging Face Space (Gradio SDK slot running the FastAPI app via `app.py`; a Dockerfile is also included).
 
 ## Architecture
 
